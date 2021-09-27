@@ -22,4 +22,4 @@ date: 2021-09-25
 * Worker会使用TempFile作为中间输出，当前任务完成后，Rename这些文件到正确的文件目录，所以当Worker执行失败时这些文件并不可见
 
 ## 流程图
-![](mapreduce/arch.png)
+![](arch.png)
