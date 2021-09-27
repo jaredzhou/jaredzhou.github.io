@@ -3,15 +3,15 @@
 <meta charset=utf-8>
 <meta http-equiv=x-ua-compatible content="IE=edge">
 <meta name=viewport content="width=device-width,initial-scale=1">
-<title>My First Post | Jared's Site</title>
-<meta property="og:title" content="My First Post - Jared's Site">
+<title>MapReduce | Jared's Site</title>
+<meta property="og:title" content="MapReduce - Jared's Site">
 <meta property="og:type" content="article">
-<meta property="article:published_time" content="2021-09-08T21:33:24+08:00">
-<meta property="article:modified_time" content="2021-09-08T21:33:24+08:00">
+<meta property="article:published_time" content="2021-09-25T00:00:00+08:00">
+<meta property="article:modified_time" content="2021-09-25T00:00:00+08:00">
 <meta name=Keywords content>
-<meta name=description content="My First Post">
+<meta name=description content="MapReduce">
 <meta name=author content>
-<meta property="og:url" content="https://jaredzhou.github.io/posts/my-first-post/">
+<meta property="og:url" content="https://jaredzhou.github.io/posts/mapreduce/">
 <link rel="shortcut icon" href=/favicon.ico type=image/x-icon>
 <link rel=stylesheet href=/css/normalize.css>
 <link rel=stylesheet href=/css/style.css>
@@ -41,13 +41,38 @@ Jared's Site
 <div class=res-cons>
 <article class=post>
 <header>
-<h1 class=post-title>My First Post</h1>
+<h1 class=post-title>MapReduce</h1>
 </header>
 <date class="post-meta meta-date">
-2021年9月8日
+2021年9月25日
 </date>
 <div class=post-content>
-<p>Noting here</p>
+<h1 id=系统描述>系统描述</h1>
+<p>根据Google论文mapreduce开发一个简易的mapreduce系统，可以处理多个数据文件，最后生成一个结果，课程案例主要是对文本进行WordCount，首先通过map统计每个word出现的次数，然后通过reduce计算count</p>
+<h2 id=设计>设计</h2>
+<ul>
+<li>Coordinator 协调者负责分配任务，包括map任务，reduce任务。</li>
+<li>Worker 执行map， reduce任务， 任务通过rpc请求Cooridnator获取</li>
+<li>Coordinator要包含错误处理，错误包括任务失败与任务缓慢，处理措施都是重试</li>
+</ul>
+<h2 id=实现>实现</h2>
+<ul>
+<li>Coordinator包含两个任务队列,一个mapTasks，由输入文件数决定； 一个reduceTasks,由reduce数量决定</li>
+<li>当worker请求任务时， Coordinator会分配一个Ready状态的任务，任务一旦分配就设置成Pending状态。</li>
+<li>Worker完成任务后，通知Coorinator，此Task已完成, 等待1秒后继续请求下一个任务</li>
+<li>当所有reduceTask都完成后， 整个任务完成</li>
+</ul>
+<h2 id=错误处理>错误处理</h2>
+<ul>
+<li>当一个任务pending超过10秒后，如果状态不为Finish， 则重新设置成Ready</li>
+<li>Worker执行任务失败后，直接结束当前循环，等待下一个任务请求</li>
+<li>任务执行成功后， Coordinator会对请求任务的worker返回Done标记， worker接收标记后退出；如果Coordinator已经退出， 则网络连接失败， Worker退出；其他情况Worker会一直循环请求任务</li>
+<li>Worker会使用TempFile作为中间输出，当前任务完成后，Rename这些文件到正确的文件目录，所以当Worker执行失败时这些文件并不可见</li>
+</ul>
+<h2 id=流程图>流程图</h2>
+<p>
+<img class=mx-auto alt src=mapreduce/arch.png>
+</p>
 </div>
 <div class="post-meta meta-tags">
 没有标签
