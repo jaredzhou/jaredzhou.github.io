@@ -1,2 +1,42 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Jared's Site</title><link>https://jaredzhou.github.io/</link><description>Recent content on Jared's Site</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Sat, 25 Sep 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://jaredzhou.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>MapReduce</title><link>https://jaredzhou.github.io/posts/mapreduce/</link><pubDate>Sat, 25 Sep 2021 00:00:00 +0000</pubDate><guid>https://jaredzhou.github.io/posts/mapreduce/</guid><description>系统描述 根据Google论文mapreduce开发一个简易的mapreduce系统，可以处理多个数据文件，最后生成一个结果，课程案例主要是对文本进行WordCount，首先通过map统计每个word出现的次数，然后通过reduce计算count
-设计 Coordinator 协调者负责分配任务，包括map任务，reduce任务。 Worker 执行map， reduce任务， 任务通过rpc请求Cooridnator获取 Coordinator要包含错误处理，错误包括任务失败与任务缓慢，处理措施都是重试 实现 Coordinator包含两个任务队列,一个mapTasks，由输入文件数决定； 一个reduceTasks,由reduce数量决定 当worker请求任务时， Coordinator会分配一个Ready状态的任务，任务一旦分配就设置成Pending状态。 Worker完成任务后，通知Coorinator，此Task已完成, 等待1秒后继续请求下一个任务 当所有reduceTask都完成后， 整个任务完成 错误处理 当一个任务pending超过10秒后，如果状态不为Finish， 则重新设置成Ready Worker执行任务失败后，直接结束当前循环，等待下一个任务请求 任务执行成功后， Coordinator会对请求任务的worker返回Done标记， worker接收标记后退出；如果Coordinator已经退出， 则网络连接失败， Worker退出；其他情况Worker会一直循环请求任务 Worker会使用TempFile作为中间输出，当前任务完成后，Rename这些文件到正确的文件目录，所以当Worker执行失败时这些文件并不可见 流程图</description></item><item><title>My First Post</title><link>https://jaredzhou.github.io/posts/my-first-post/</link><pubDate>Wed, 08 Sep 2021 21:33:24 +0800</pubDate><guid>https://jaredzhou.github.io/posts/my-first-post/</guid><description>Noting here</description></item><item><title>任务流</title><link>https://jaredzhou.github.io/posts/workflow/</link><pubDate>Wed, 08 Sep 2021 21:33:24 +0800</pubDate><guid>https://jaredzhou.github.io/posts/workflow/</guid><description>需求描述 由于前端展示的多样性， 需要一个可以灵活配置的Api Gateway, 这个gateway不能仅仅满足http请求都后端微服务的转发， 还必须可以定义微服务返回结果之间的组合，组合的灵活性当然是不可能达到代码的程度，但是应该可以满足常见的数据拼接，比如结果集的简单Merge，比如数据集详情扩展， 比如B接口请求依赖A接口的返回值等。 要能够请求多个接口，并且这些请求之间有一定的依赖关系， DAG是一个自然的选择， 如果把每个请求当成单个节点上的任务, 那么任务之间的依赖关系可以通过节点依赖关系表达出来， 同时没有依赖关系的任务还可以并行执行。 一个DAG可以表示一个任务流，一个任务流应该有Request， Response， 一个任务流应该有开始节点与结束节点。一个DAG应该允许节点中存在SubDAG 任务之前必须可以传递数据，我们定义A-&amp;gt;B为B依赖A， 那么应该可以将A的执行结果传递给B。如果存在依赖关系{A-&amp;gt;B, C-&amp;gt;B},那么应该可以将A的结果合并C的结果。 由于在Gateway中使用， 任务的主要实现应该为 Http请求， RPCX请求， GRPC请求等， 一个问题在于如何将客户端的Http请求转化为后端服务请求，通常的情况是， 一个Http请求的query string或者body加上一些用户信息传递到后端服务，但是由于接口是从已经开发完成的系统中迁移， 所以情况可能会较为复杂。Query String, Params, Header, Body, JWT,这个都可能是参数的来源 认证与授权也可以当作节点来使用 如果任意一个节点失败， 那么请求应该是失败的， 并且返回错误信息给前端 基本设计 Request 包含http所有可能的信息， 必须包含一个requestID，假如没有就生成一个 Response 主要包含body与header， 两个部分， header中必须包含requestID 每一个接口(POST /api/username)对应一个DAG， 这个DAG可以使用JSON/YAML配置 DAG的执行应该是异步的， 每个Node可能在不同的协程中执行，DAG应该有一个Executor， 这个Executor应该负责Node的开始执行， 捕获Node执行完成信号， 并且通知所有满足依赖关系的Node继续执行，直到结束节点执行完毕。 这个Executor应该包含一个Context， 并且在所有Node中共享这个Context Node应该在一个协程池当中执行， 一个Node完成后在Context中设置完成结果，并且通过channel通知Executor</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Jared's Site</title><link>https://jaredzhou.github.io/</link><description>Recent content on Jared's Site</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Sat, 25 Sep 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://jaredzhou.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>MapReduce</title><link>https://jaredzhou.github.io/post/mapreduce/</link><pubDate>Sat, 25 Sep 2021 00:00:00 +0000</pubDate><guid>https://jaredzhou.github.io/post/mapreduce/</guid><description>&lt;h1 id="系统描述">系统描述&lt;/h1>
+&lt;p>根据Google论文mapreduce开发一个简易的mapreduce系统，可以处理多个数据文件，最后生成一个结果，课程案例主要是对文本进行WordCount，首先通过map统计每个word出现的次数，然后通过reduce计算count&lt;/p>
+&lt;h2 id="设计">设计&lt;/h2>
+&lt;ul>
+&lt;li>Coordinator 协调者负责分配任务，包括map任务，reduce任务。&lt;/li>
+&lt;li>Worker 执行map， reduce任务， 任务通过rpc请求Cooridnator获取&lt;/li>
+&lt;li>Coordinator要包含错误处理，错误包括任务失败与任务缓慢，处理措施都是重试&lt;/li>
+&lt;/ul>
+&lt;h2 id="实现">实现&lt;/h2>
+&lt;ul>
+&lt;li>Coordinator包含两个任务队列,一个mapTasks，由输入文件数决定； 一个reduceTasks,由reduce数量决定&lt;/li>
+&lt;li>当worker请求任务时， Coordinator会分配一个Ready状态的任务，任务一旦分配就设置成Pending状态。&lt;/li>
+&lt;li>Worker完成任务后，通知Coorinator，此Task已完成, 等待1秒后继续请求下一个任务&lt;/li>
+&lt;li>当所有reduceTask都完成后， 整个任务完成&lt;/li>
+&lt;/ul>
+&lt;h2 id="错误处理">错误处理&lt;/h2>
+&lt;ul>
+&lt;li>当一个任务pending超过10秒后，如果状态不为Finish， 则重新设置成Ready&lt;/li>
+&lt;li>Worker执行任务失败后，直接结束当前循环，等待下一个任务请求&lt;/li>
+&lt;li>任务执行成功后， Coordinator会对请求任务的worker返回Done标记， worker接收标记后退出；如果Coordinator已经退出， 则网络连接失败， Worker退出；其他情况Worker会一直循环请求任务&lt;/li>
+&lt;li>Map Worker将TempFile作为中间数据， 并将这些文件传输给Master，以供Reduce Worker使用。一个已经成功返回的MapTask将忽略其他的返回&lt;/li>
+&lt;li>Reduce Worker会使用TempFile作为中间输出，当前任务完成后，Rename这些文件到正确的文件目录，所以当Worker执行失败时这些文件并不可见&lt;/li>
+&lt;/ul>
+&lt;h2 id="流程图">流程图&lt;/h2>
+&lt;p>&lt;img src="arch.png" alt="">&lt;/p></description></item><item><title>任务流</title><link>https://jaredzhou.github.io/post/workflow/</link><pubDate>Wed, 08 Sep 2021 21:33:24 +0800</pubDate><guid>https://jaredzhou.github.io/post/workflow/</guid><description>&lt;h3 id="需求描述">需求描述&lt;/h3>
+&lt;ul>
+&lt;li>由于前端展示的多样性， 需要一个可以灵活配置的Api Gateway, 这个gateway不能仅仅满足http请求都后端微服务的转发， 还必须可以定义微服务返回结果之间的组合，组合的灵活性当然是不可能达到代码的程度，但是应该可以满足常见的数据拼接，比如结果集的简单Merge，比如数据集详情扩展， 比如B接口请求依赖A接口的返回值等。&lt;/li>
+&lt;li>要能够请求多个接口，并且这些请求之间有一定的依赖关系， DAG是一个自然的选择， 如果把每个请求当成单个节点上的任务, 那么任务之间的依赖关系可以通过节点依赖关系表达出来， 同时没有依赖关系的任务还可以并行执行。&lt;/li>
+&lt;li>一个DAG可以表示一个任务流，一个任务流应该有Request， Response， 一个任务流应该有开始节点与结束节点。一个DAG应该允许节点中存在SubDAG&lt;/li>
+&lt;li>任务之前必须可以传递数据，我们定义A-&amp;gt;B为B依赖A， 那么应该可以将A的执行结果传递给B。如果存在依赖关系{A-&amp;gt;B, C-&amp;gt;B},那么应该可以将A的结果合并C的结果。&lt;/li>
+&lt;li>由于在Gateway中使用， 任务的主要实现应该为 Http请求， RPCX请求， GRPC请求等， 一个问题在于如何将客户端的Http请求转化为后端服务请求，通常的情况是， 一个Http请求的query string或者body加上一些用户信息传递到后端服务，但是由于接口是从已经开发完成的系统中迁移， 所以情况可能会较为复杂。Query String, Params, Header, Body, JWT,这个都可能是参数的来源&lt;/li>
+&lt;li>认证与授权也可以当作节点来使用&lt;/li>
+&lt;li>如果任意一个节点失败， 那么请求应该是失败的， 并且返回错误信息给前端&lt;/li>
+&lt;/ul>
+&lt;h3 id="基本设计">基本设计&lt;/h3>
+&lt;ul>
+&lt;li>Request 包含http所有可能的信息， 必须包含一个requestID，假如没有就生成一个&lt;/li>
+&lt;li>Response 主要包含body与header， 两个部分， header中必须包含requestID&lt;/li>
+&lt;li>每一个接口(POST /api/username)对应一个DAG， 这个DAG可以使用JSON/YAML配置&lt;/li>
+&lt;li>DAG的执行应该是异步的， 每个Node可能在不同的协程中执行，DAG应该有一个Executor， 这个Executor应该负责Node的开始执行， 捕获Node执行完成信号， 并且通知所有满足依赖关系的Node继续执行，直到结束节点执行完毕。 这个Executor应该包含一个Context， 并且在所有Node中共享这个Context&lt;/li>
+&lt;li>Node应该在一个协程池当中执行， 一个Node完成后在Context中设置完成结果，并且通过channel通知Executor&lt;/li>
+&lt;/ul></description></item></channel></rss>
