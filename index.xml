@@ -1,19 +1,19 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Jared's Site</title><link>https://jaredzhou.github.io/</link><description>Recent content on Jared's Site</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Sat, 25 Sep 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://jaredzhou.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>MapReduce</title><link>https://jaredzhou.github.io/post/mapreduce/</link><pubDate>Sat, 25 Sep 2021 00:00:00 +0000</pubDate><guid>https://jaredzhou.github.io/post/mapreduce/</guid><description>&lt;h1 id="系统描述">系统描述&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Jared's Site</title><link>https://jaredzhou.github.io/</link><description>Recent content on Jared's Site</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Sat, 25 Sep 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://jaredzhou.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>MapReduce</title><link>https://jaredzhou.github.io/post/mapreduce/</link><pubDate>Sat, 25 Sep 2021 00:00:00 +0000</pubDate><guid>https://jaredzhou.github.io/post/mapreduce/</guid><description>&lt;h2 id="系统描述">系统描述&lt;/h2>
 &lt;p>根据Google论文mapreduce开发一个简易的mapreduce系统，可以处理多个数据文件，最后生成一个结果，课程案例主要是对文本进行WordCount，首先通过map统计每个word出现的次数，然后通过reduce计算count&lt;/p>
-&lt;h2 id="设计">设计&lt;/h2>
+&lt;h3 id="设计">设计&lt;/h3>
 &lt;ul>
 &lt;li>Coordinator 协调者负责分配任务，包括map任务，reduce任务。&lt;/li>
 &lt;li>Worker 执行map， reduce任务， 任务通过rpc请求Cooridnator获取&lt;/li>
 &lt;li>Coordinator要包含错误处理，错误包括任务失败与任务缓慢，处理措施都是重试&lt;/li>
 &lt;/ul>
-&lt;h2 id="实现">实现&lt;/h2>
+&lt;h3 id="实现">实现&lt;/h3>
 &lt;ul>
 &lt;li>Coordinator包含两个任务队列,一个mapTasks，由输入文件数决定； 一个reduceTasks,由reduce数量决定&lt;/li>
 &lt;li>当worker请求任务时， Coordinator会分配一个Ready状态的任务，任务一旦分配就设置成Pending状态。&lt;/li>
 &lt;li>Worker完成任务后，通知Coorinator，此Task已完成, 等待1秒后继续请求下一个任务&lt;/li>
 &lt;li>当所有reduceTask都完成后， 整个任务完成&lt;/li>
 &lt;/ul>
-&lt;h2 id="错误处理">错误处理&lt;/h2>
+&lt;h3 id="错误处理">错误处理&lt;/h3>
 &lt;ul>
 &lt;li>当一个任务pending超过10秒后，如果状态不为Finish， 则重新设置成Ready&lt;/li>
 &lt;li>Worker执行任务失败后，直接结束当前循环，等待下一个任务请求&lt;/li>
@@ -21,7 +21,7 @@
 &lt;li>Map Worker将TempFile作为中间数据， 并将这些文件传输给Master，以供Reduce Worker使用。一个已经成功返回的MapTask将忽略其他的返回&lt;/li>
 &lt;li>Reduce Worker会使用TempFile作为中间输出，当前任务完成后，Rename这些文件到正确的文件目录，所以当Worker执行失败时这些文件并不可见&lt;/li>
 &lt;/ul>
-&lt;h2 id="流程图">流程图&lt;/h2>
+&lt;h3 id="流程图">流程图&lt;/h3>
 &lt;p>&lt;img src="arch.png" alt="">&lt;/p></description></item><item><title>任务流</title><link>https://jaredzhou.github.io/post/workflow/</link><pubDate>Wed, 08 Sep 2021 21:33:24 +0800</pubDate><guid>https://jaredzhou.github.io/post/workflow/</guid><description>&lt;h3 id="需求描述">需求描述&lt;/h3>
 &lt;ul>
 &lt;li>由于前端展示的多样性， 需要一个可以灵活配置的Api Gateway, 这个gateway不能仅仅满足http请求都后端微服务的转发， 还必须可以定义微服务返回结果之间的组合，组合的灵活性当然是不可能达到代码的程度，但是应该可以满足常见的数据拼接，比如结果集的简单Merge，比如数据集详情扩展， 比如B接口请求依赖A接口的返回值等。&lt;/li>
