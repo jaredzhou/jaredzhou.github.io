@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Jared's Site</title><link>https://jaredzhou.github.io/</link><description>Recent content on Jared's Site</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 08 Apr 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jaredzhou.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Rust string type</title><link>https://jaredzhou.github.io/post/ruststr/</link><pubDate>Fri, 08 Apr 2022 00:00:00 +0000</pubDate><guid>https://jaredzhou.github.io/post/ruststr/</guid><description>&lt;h3 id="rust-string和str">rust string和&amp;amp;str&lt;/h3>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Jared's Site</title><link>https://jaredzhou.github.io/</link><description>Recent content on Jared's Site</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 08 Apr 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jaredzhou.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Rust string type</title><link>https://jaredzhou.github.io/post/ruststr/</link><pubDate>Fri, 08 Apr 2022 00:00:00 +0000</pubDate><guid>https://jaredzhou.github.io/post/ruststr/</guid><description>&lt;h3 id="string和str">string和&amp;amp;str&lt;/h3>
 &lt;p>rust中操作字符串比较常用的是&lt;code>String&lt;/code>和&lt;code>&amp;amp;str&lt;/code> 比如：&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
@@ -18,8 +18,10 @@
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kd">let&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">world&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">s&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">6&lt;/span>&lt;span class="o">..&lt;/span>&lt;span class="p">];&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">//从&amp;amp;str中得到&amp;amp;str
 &lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;p>以下是&lt;code>String&lt;/code>与&lt;code>&amp;amp;str&lt;/code>在内存中的结构，&lt;code>String&lt;/code>占用了3个字长，&lt;code>&amp;amp;str&lt;/code>占用两个字长。他们都有一个指向底层数组的指针。&lt;/p>
+&lt;/div>&lt;h4 id="内存布局">内存布局&lt;/h4>
+&lt;p>以下是&lt;code>String&lt;/code>与&lt;code>&amp;amp;str&lt;/code>在内存中的结构，&lt;code>String&lt;/code>占用了3个字长，&lt;code>&amp;amp;str&lt;/code>占用两个字长。他们都有一个指向底层数组的指针。&lt;/p>
 &lt;p>&lt;img src="https://jaredzhou.github.io/str.png" alt="">&lt;/p>
+&lt;h4 id="实现源码">实现源码&lt;/h4>
 &lt;p>string的内部实现就是一个Vec[u8]&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
@@ -79,7 +81,7 @@
 &lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>以上可以看出string的内存占用从何而来&lt;/p>
-&lt;p>&lt;code>str&lt;/code>是一个原生类型，字面常量的完整类型是&lt;code>&amp;amp;‘static str&lt;/code>, 虽然没有&lt;code>&amp;amp;str&lt;/code>的类型定义，但是从它的方法中也可以找到它的内部结构&lt;/p>
+&lt;p>&lt;code>str&lt;/code>是一个原生类型，字面常量的完整类型是&lt;code>&amp;amp;‘static str&lt;/code>, 虽然没有&lt;code>str&lt;/code>的类型定义，但是从它的方法中也可以找到它的内部结构&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
@@ -126,7 +128,8 @@
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="fm">assert_eq!&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">s&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nb">Ok&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">story&lt;/span>&lt;span class="p">));&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;p>理论上可以通过各种方式得到&lt;code>str&lt;/code>类型本身，然而编译器并不能通过， 主要是因为&lt;code>str&lt;/code>类型为unsize type， 并不能够在栈中存在。比如&lt;/p>
+&lt;/div>&lt;h3 id="str的其他使用方式">str的其他使用方式&lt;/h3>
+&lt;p>理论上可以通过各种方式得到&lt;code>str&lt;/code>类型本身，然而编译器并不能通过， 主要是因为&lt;code>str&lt;/code>类型为unsize type， 并不能够在栈中存在。比如&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
@@ -151,7 +154,8 @@
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="kd">let&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">w&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">s&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">6&lt;/span>&lt;span class="o">..&lt;/span>&lt;span class="p">];&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;p>既然&lt;code>str&lt;/code>不能在栈上存在，那么能不能显式放到堆上呢？答案是可以的,那就是&lt;code>Box&amp;lt;str&amp;gt;&lt;/code>，但是&lt;code>Box&amp;lt;str&amp;gt;&lt;/code>只能通过以下一种方式初始化&lt;/p>
+&lt;/div>&lt;h4 id="boxstr">&lt;code>Box&amp;lt;str&amp;gt;&lt;/code>&lt;/h4>
+&lt;p>既然&lt;code>str&lt;/code>不能在栈上存在，那么能不能显式放到堆上呢？答案是可以的,那就是&lt;code>Box&amp;lt;str&amp;gt;&lt;/code>，但是&lt;code>Box&amp;lt;str&amp;gt;&lt;/code>只能通过以下一种方式初始化&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
@@ -167,6 +171,7 @@
 &lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>&lt;code>Box&amp;lt;str&amp;gt;&lt;/code>同样是占用2个字长，事实上，当一个&lt;code>unsize type&lt;/code>被放在引用或者指针后面的时候它就是一个2字长胖指针，比如&lt;code>&amp;amp;[u8]&lt;/code>, &lt;code>&amp;amp;dyn Trait&lt;/code>都是如此， &lt;code>*const [T]&lt;/code>也是一样&lt;/p>
+&lt;h4 id="cowstr">&lt;code>Cow&amp;lt;str&amp;gt;&lt;/code>&lt;/h4>
 &lt;p>很多时候，我们希望函数接口保持兼容性与灵活性，通常使用&lt;code>&amp;amp;str&lt;/code>而不是&lt;code>String&lt;/code>或者·&lt;code>&amp;amp;String&lt;/code>作为接口，但是作为返回，如果这个函数并没有修改这个&lt;code>&amp;amp;str&lt;/code>,那么我们希望可以直接返回它， 但是当这个函数改变了值，我们只能复制这个&lt;code>str&lt;/code>并且返回&lt;code>String&lt;/code>类型以获得owned值。这个时候&lt;code>Cow&amp;lt;str&amp;gt;&lt;/code>就派上了用场。以下是定义&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
@@ -188,8 +193,12 @@
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;p>标准库中，对于&lt;code>Cow&amp;lt;str&amp;gt;&lt;/code>的使用有&lt;a href="https://doc.rust-lang.org/stable/std/string/struct.String.html#method.from_utf8_lossy">from_utf8_lossy&lt;/a>&lt;/p>
-&lt;p>返回&lt;code>&amp;amp;str&lt;/code>,不需要分配新的内存&lt;/p>
+&lt;/div>&lt;ol>
+&lt;li>标准库中，对于&lt;code>Cow&amp;lt;str&amp;gt;&lt;/code>的使用有&lt;a href="https://doc.rust-lang.org/stable/std/string/struct.String.html#method.from_utf8_lossy">from_utf8_lossy&lt;/a>返回&lt;code>&amp;amp;str&lt;/code>&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>不需要分配新的内存&lt;/li>
+&lt;/ul>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
@@ -208,7 +217,9 @@
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="fm">assert_eq!&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;💖&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">sparkle_heart&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;p>返回&lt;code>String&lt;/code>, 由于修改了字符串内容， 重新复制了内存&lt;/p>
+&lt;/div>&lt;ul>
+&lt;li>返回&lt;code>String&lt;/code>, 由于修改了字符串内容， 重新复制了内存&lt;/li>
+&lt;/ul>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
@@ -227,7 +238,9 @@
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="fm">assert_eq!&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Hello �World&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">output&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;p>在crate &lt;code>regex&lt;/code>中有一个replace方法，同样使用&lt;code>Cow&amp;lt;str&amp;gt;&lt;/code>作为返回值&lt;/p>
+&lt;/div>&lt;ol start="2">
+&lt;li>在crate &lt;code>regex&lt;/code>中有一个replace方法，同样使用&lt;code>Cow&amp;lt;str&amp;gt;&lt;/code>作为返回值&lt;/li>
+&lt;/ol>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
@@ -260,7 +273,9 @@
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;p>我们可以直接使用&lt;code>Cow&amp;lt;str&amp;gt;&lt;/code>， 打印或者写入文件&lt;/p>
+&lt;/div>&lt;ol start="3">
+&lt;li>我们可以直接使用&lt;code>Cow&amp;lt;str&amp;gt;&lt;/code>， 打印或者写入文件&lt;/li>
+&lt;/ol>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
