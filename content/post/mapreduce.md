@@ -29,4 +29,4 @@ draft: false
 
 
 ### 流程图
-![](arch.png)
+![](/arch.png)

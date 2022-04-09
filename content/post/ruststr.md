@@ -25,7 +25,8 @@ let world = &s[6..];          //从&str中得到&str
 
 
 以下是`String`与`&str`在内存中的结构，`String`占用了3个字长，`&str`占用两个字长。他们都有一个指向底层数组的指针。
-![[str.svg]]
+
+![](/str.png)
 
 string的内部实现就是一个Vec[u8]
 ```rust
