@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Jared's Site</title><link>https://jaredzhou.github.io/</link><description>Recent content on Jared's Site</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 08 Apr 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jaredzhou.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Rust string type</title><link>https://jaredzhou.github.io/post/rust-string-and-str/</link><pubDate>Fri, 08 Apr 2022 00:00:00 +0000</pubDate><guid>https://jaredzhou.github.io/post/rust-string-and-str/</guid><description>&lt;h3 id="rust-string和str">rust string和&amp;amp;str&lt;/h3>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Jared's Site</title><link>https://jaredzhou.github.io/</link><description>Recent content on Jared's Site</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 08 Apr 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jaredzhou.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Rust string type</title><link>https://jaredzhou.github.io/post/ruststr/</link><pubDate>Fri, 08 Apr 2022 00:00:00 +0000</pubDate><guid>https://jaredzhou.github.io/post/ruststr/</guid><description>&lt;h3 id="rust-string和str">rust string和&amp;amp;str&lt;/h3>
 &lt;p>rust中操作字符串比较常用的是&lt;code>String&lt;/code>和&lt;code>&amp;amp;str&lt;/code> 比如：&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
@@ -18,8 +18,8 @@
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kd">let&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">world&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">s&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">6&lt;/span>&lt;span class="o">..&lt;/span>&lt;span class="p">];&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">//从&amp;amp;str中得到&amp;amp;str
 &lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;p>以下是&lt;code>String&lt;/code>与&lt;code>&amp;amp;str&lt;/code>在内存中的结构，&lt;code>String&lt;/code>占用了3个字长，&lt;code>&amp;amp;str&lt;/code>占用两个字长。他们都有一个指向底层数组的指针。
-![[str.svg]]&lt;/p>
+&lt;/div>&lt;p>以下是&lt;code>String&lt;/code>与&lt;code>&amp;amp;str&lt;/code>在内存中的结构，&lt;code>String&lt;/code>占用了3个字长，&lt;code>&amp;amp;str&lt;/code>占用两个字长。他们都有一个指向底层数组的指针。&lt;/p>
+&lt;p>&lt;img src="https://jaredzhou.github.io/str.png" alt="">&lt;/p>
 &lt;p>string的内部实现就是一个Vec[u8]&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
@@ -311,7 +311,7 @@
 &lt;li>Reduce Worker会使用TempFile作为中间输出，当前任务完成后，Rename这些文件到正确的文件目录，所以当Worker执行失败时这些文件并不可见&lt;/li>
 &lt;/ul>
 &lt;h3 id="流程图">流程图&lt;/h3>
-&lt;p>&lt;img src="arch.png" alt="">&lt;/p></description></item><item><title>任务流</title><link>https://jaredzhou.github.io/post/workflow/</link><pubDate>Wed, 08 Sep 2021 21:33:24 +0800</pubDate><guid>https://jaredzhou.github.io/post/workflow/</guid><description>&lt;h3 id="需求描述">需求描述&lt;/h3>
+&lt;p>&lt;img src="https://jaredzhou.github.io/arch.png" alt="">&lt;/p></description></item><item><title>任务流</title><link>https://jaredzhou.github.io/post/workflow/</link><pubDate>Wed, 08 Sep 2021 21:33:24 +0800</pubDate><guid>https://jaredzhou.github.io/post/workflow/</guid><description>&lt;h3 id="需求描述">需求描述&lt;/h3>
 &lt;ul>
 &lt;li>由于前端展示的多样性， 需要一个可以灵活配置的Api Gateway, 这个gateway不能仅仅满足http请求都后端微服务的转发， 还必须可以定义微服务返回结果之间的组合，组合的灵活性当然是不可能达到代码的程度，但是应该可以满足常见的数据拼接，比如结果集的简单Merge，比如数据集详情扩展， 比如B接口请求依赖A接口的返回值等。&lt;/li>
 &lt;li>要能够请求多个接口，并且这些请求之间有一定的依赖关系， DAG是一个自然的选择， 如果把每个请求当成单个节点上的任务, 那么任务之间的依赖关系可以通过节点依赖关系表达出来， 同时没有依赖关系的任务还可以并行执行。&lt;/li>
