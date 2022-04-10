@@ -3,6 +3,8 @@ title: "Rust string type"
 date: 2022-04-08
 tags: [
     "rust",
+    "string",
+    "str"
 ]
 comment: true
 mathjax: false
