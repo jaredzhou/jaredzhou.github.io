@@ -1,10 +1,10 @@
 ---
 title: "阅读Programming Rust第5章"
-date: 2022-04-10
+date: 2022-04-11
 tags: [
     "rust",
     "programming rust",
-    "ownership",
+    "lifetime",
 	"reference",
 	"borrow"
 ]
