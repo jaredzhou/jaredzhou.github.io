@@ -1,5 +1,5 @@
 ---
-title: "阅读Programming Rust第5章(续)"
+title: "Rust Shared And Mutable References"
 date: 2022-10-15
 tags: [
     "rust",

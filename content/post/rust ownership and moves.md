@@ -1,5 +1,5 @@
 ---
-title: "阅读Programming Rust第4章"
+title: "Rust Ownership And Move"
 date: 2022-04-10
 tags: [
     "rust",
@@ -14,8 +14,8 @@ toc: true
 autoCollapseToc: true
 draft: false
 ---
- 
- 
+
+
  本文是对[Programming Rust](https://www.oreilly.com/library/view/programming-rust-2nd/9781492052586/) 第4章的总结，部分代码与图片来自此书
 
 ## 背景

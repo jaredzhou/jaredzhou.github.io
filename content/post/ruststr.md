@@ -1,5 +1,5 @@
 ---
-title: "Rust string type"
+title: "Rust String Type"
 date: 2022-04-08
 tags: [
     "rust",
