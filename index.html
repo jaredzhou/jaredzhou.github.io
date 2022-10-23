@@ -5,7 +5,315 @@
 <button class="pswp__button pswp__button--share" title=Share></button>
 <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
 <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
-<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><header id=header class="header container"><div class=logo-wrapper><a href=/ class=logo>Jared's Site</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=https://jaredzhou.github.io/>Home</a></li><li class=menu-item><a class=menu-item-link href=https://jaredzhou.github.io/post/>Posts</a></li></ul></nav></header><div id=mobile-panel><main id=main class="main bg-llight"><div class=content-wrapper><div id=content class="content container"><section id=posts class=posts><article class="post bg-white"><header class=post-header><h1 class=post-title><a class=post-link href=/post/rust-iterators/>Rust Iterators</a></h1><div class=post-meta><time datetime=2022-10-20 class=post-time>2022-10-20</time></div></header><div class=post-content><div class=post-summary><p>本文是对<a href=https://www.oreilly.com/library/view/programming-rust-2nd/9781492052586/>Programming Rust</a> 第15章的总结，部分代码与图片来自此书</p><h3 id=一个简单的例子>一个简单的例子</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><header id=header class="header container"><div class=logo-wrapper><a href=/ class=logo>Jared's Site</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=https://jaredzhou.github.io/>Home</a></li><li class=menu-item><a class=menu-item-link href=https://jaredzhou.github.io/post/>Posts</a></li></ul></nav></header><div id=mobile-panel><main id=main class="main bg-llight"><div class=content-wrapper><div id=content class="content container"><section id=posts class=posts><article class="post bg-white"><header class=post-header><h1 class=post-title><a class=post-link href=/post/rust-utility-traits/>Rust Utility Traits</a></h1><div class=post-meta><time datetime=2022-10-23 class=post-time>2022-10-23</time></div></header><div class=post-content><div class=post-summary><p>本文是对<a href=https://www.oreilly.com/library/view/programming-rust-2nd/9781492052586/>Programming Rust</a> 第13章的总结，部分代码与图片来自此书</p><h3 id=utility-traits>Utility Traits</h3><p>rust中有很多常用的<code>trait</code>用来表达一些基础的语言特性， 这些特性贯穿了整个rust语言的设计与应用，熟悉这些<code>trait</code>对于编写rust代码是必须的</p><h4 id=drop><code>Drop</code></h4><p>drop发生在一个所有者终结的时候，他所持有的值就要一起被销毁， 这些值包括堆内存，系统资源等等。<code>drop</code>通常发生在作用域结束，表达式结束或者<code>Vec</code>移除对象的时候。大部分时候rust会自动帮你销毁对象，这正是<code>Borrow-Check</code>机制的特别之处，在没有GC的情况下做自动内存管理</p><p><code>Drop</code>被定义如下</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>trait</span><span class=w> </span><span class=nb>Drop</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=k>fn</span> <span class=nf>drop</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=bp>self</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>rust会在值销毁的时候自动调用<code>drop</code>， 另外手工调用<code>drop</code>是不被允许的， rust编译器会报错</p><p>以下例子表明了drop发生的时机</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=w> </span><span class=k>struct</span> <span class=nc>Appellation</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>     </span><span class=n>name</span>: <span class=nb>String</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>     </span><span class=n>nicknames</span>: <span class=nb>Vec</span><span class=o>&lt;</span><span class=nb>String</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=k>impl</span><span class=w> </span><span class=nb>Drop</span><span class=w> </span><span class=k>for</span><span class=w> </span><span class=n>Appellation</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>     </span><span class=k>fn</span> <span class=nf>drop</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=bp>self</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>         </span><span class=fm>print!</span><span class=p>(</span><span class=s>&#34;Dropping {}&#34;</span><span class=p>,</span><span class=w> </span><span class=bp>self</span><span class=p>.</span><span class=n>name</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>         </span><span class=k>if</span><span class=w> </span><span class=o>!</span><span class=bp>self</span><span class=p>.</span><span class=n>nicknames</span><span class=p>.</span><span class=n>is_empty</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>             </span><span class=fm>print!</span><span class=p>(</span><span class=s>&#34; (AKA {})&#34;</span><span class=p>,</span><span class=w> </span><span class=bp>self</span><span class=p>.</span><span class=n>nicknames</span><span class=p>.</span><span class=n>join</span><span class=p>(</span><span class=s>&#34;, &#34;</span><span class=p>));</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>         </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>         </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>     </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>     </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>a</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Appellation</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>         </span><span class=n>name</span>: <span class=s>&#34;Zeus&#34;</span><span class=p>.</span><span class=n>to_string</span><span class=p>(),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>         </span><span class=n>nicknames</span>: <span class=nc>vec</span><span class=o>!</span><span class=p>[</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>             </span><span class=s>&#34;cloud collector&#34;</span><span class=p>.</span><span class=n>to_string</span><span class=p>(),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>             </span><span class=s>&#34;king of the gods&#34;</span><span class=p>.</span><span class=n>to_string</span><span class=p>(),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>         </span><span class=p>],</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>     </span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>     </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;before assignment&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>     </span><span class=c1>//a Owner another value, so the old value drop
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>     </span><span class=n>a</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Appellation</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>         </span><span class=n>name</span>: <span class=s>&#34;Hera&#34;</span><span class=p>.</span><span class=n>to_string</span><span class=p>(),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>         </span><span class=n>nicknames</span>: <span class=nc>vec</span><span class=o>!</span><span class=p>[],</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>     </span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>     </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;at end of block&#34;</span><span class=p>);</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>     </span><span class=c1>//a drop the value it owns
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w> </span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>在这个例子中<code>drop</code>发生了两次， 一次是重新赋值的时候，另外一次是作用域结束的时候</p><p>大多数情况，我们并不需要自己实现<code>Drop</code>， 但是有些时候rust编译器识别不出值所拥有的资源类型的时候， 你需要手工来释放资源,比如标准库中的文件句柄，通过<code>drop</code>来主动释放对于文件句柄的占用</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>struct</span> <span class=nc>FileDesc</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>fd</span>: <span class=nc>c_int</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>impl</span><span class=w> </span><span class=nb>Drop</span><span class=w> </span><span class=k>for</span><span class=w> </span><span class=n>FileDesc</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=k>fn</span> <span class=nf>drop</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=bp>self</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=kd>let</span><span class=w> </span><span class=n>_</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>unsafe</span><span class=w> </span><span class=p>{</span><span class=w> </span><span class=n>libc</span>::<span class=n>close</span><span class=p>(</span><span class=bp>self</span><span class=p>.</span><span class=n>fd</span><span class=p>)</span><span class=w> </span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>一个实现了<code>Drop</code>的类型，不能同时实现<code>Copy</code>,因为<code>Copy</code>代表了类型可以通过字节复制来完成拷贝， 这种情况下可能会对于同样的数据<code>drop</code>多次， 这种做法是错误的。</p><h4 id=sized><code>Sized</code></h4><p><code>Sized</code>代表了某种类型拥有固定大小， rust中大部分类型都是<code>Sized</code>, 数字，字符串，数组等。</p><p><code>Sized</code>是一种<code>Marker Trait</code>， 这表示它并不需要代码实现，而是由编译器自动实现</p><p>以下三种类型是<code>Unszied Type</code></p><ul><li>str</li><li>slice</li><li>trait object(dyn trait)</li></ul><p>以下是三种类型的内存示意图</p><p><img src=/unsized.png alt></p><p>rust并不能直接把<code>Unsized Type</code>放在变量中使用， 通常是通过放在引用或者智能指针后面使用比如<code>&str</code>, <code>&[T]</code>,<code>Box::&lt;dyn Writer></code>.</p><p>除了以上三种类型之外， <code>struct</code>也允许在最后一个字段放置一个<code>Unsized Type</code>使它自己也变成<code>Unszie Type</code>,比如标准库中<code>Rc</code>的私有类型<code>RcBox</code></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>struct</span> <span class=nc>RcBox</span><span class=o>&lt;</span><span class=n>T</span>: <span class=o>?</span><span class=nb>Sized</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>ref_count</span>: <span class=kt>usize</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>value</span>: <span class=nc>T</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>let</span><span class=w> </span><span class=n>boxed_lunch</span>: <span class=nc>RcBox</span><span class=o>&lt;</span><span class=nb>String</span><span class=o>&gt;</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>RcBox</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>ref_count</span>: <span class=mi>1</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>value</span>: <span class=s>&#34;lunch&#34;</span><span class=p>.</span><span class=n>to_string</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>use</span><span class=w> </span><span class=n>std</span>::<span class=n>fmt</span>::<span class=n>Display</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>let</span><span class=w> </span><span class=n>boxed_displayable</span>: <span class=kp>&amp;</span><span class=nc>RcBox</span><span class=o>&lt;</span><span class=k>dyn</span><span class=w> </span><span class=n>Display</span><span class=o>&gt;</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>&amp;</span><span class=n>boxed_lunch</span><span class=p>;</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>对于一个<code>Unsize Type</code>你并不能直接构建， 而是需要通过引用的方式间接实现</p><p>另外在泛型边界中， 由于约束<code>Sized</code>是很普遍的情况， 所以默认所有泛型<code>&lt;T></code>都会被自动转换成<code>T:Sized</code>, 如果你需要<code>Unsized Type</code>那么可以显示的指定为<code>T:?Sized</code></p><h4 id=clone><code>Clone</code></h4><p><code>Clone</code>就是对一个值的深复制， 标准库中的大部分类型都是适合复制的，也就是实现了<code>Clone</code>，但是某些特定的类型不合适，比如<code>std::sync::Mutex</code>是不允许复制的， 因为锁是不能复制的，另外<code>std::fs::File</code>也是可以复制的， 但是由于涉及到操作系统调用， 并不能保证复制成功， 所以它也没有实现<code>Clone</code>相反它提供了一个<code>try_clone</code>方法</p><h4 id=copy><code>Copy</code></h4><p><code>Copy</code>也是一种<code>Marker Trait</code>，它表明了一个类型可以进行字节浅复制，在所有<code>Move</code>发生的情况下， 如果一个类型是<code>Copy</code>类型，那么<code>Move</code>不会发生， 取而代之的是复制，也就是原来的值持有者保持可用</p><p><code>Copy</code>只可以标记那些能够进行浅复制的类型， 这个约束又编译器来保证， 另外实现了<code>Drop</code>的类型不能同时实现<code>Copy</code>,两者不能同时存在于一个类型中</p><h4 id=deref-and-derefmut><code>Deref</code> and <code>DerefMut</code></h4><p><code>Deref</code>是用来表达解引用，解引用与引用是一对相反的操作， 对于引用类型来说可以用<code>*T</code>来表示， 为了把这种操作推广到自定义类型，所以有了这一组<code>Trait</code> . 但是事实上能用到*的地方其实很少，考虑下面的类型</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>struct</span> <span class=nc>MyString</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kt>str</span>: <span class=nb>String</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>impl</span><span class=w> </span><span class=n>Deref</span><span class=w> </span><span class=k>for</span><span class=w> </span><span class=n>MyString</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>type</span> <span class=nc>Target</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>Stri</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>deref</span><span class=p>(</span><span class=o>&amp;</span><span class=bp>self</span><span class=p>)</span><span class=w> </span>-&gt; <span class=kp>&amp;</span><span class=nc>Self</span>::<span class=n>Target</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=o>&amp;</span><span class=bp>self</span><span class=p>.</span><span class=kt>str</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>impl</span><span class=w> </span><span class=n>DerefMut</span><span class=w> </span><span class=k>for</span><span class=w> </span><span class=n>MyString</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>fn</span> <span class=nf>deref_mut</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=bp>self</span><span class=p>)</span><span class=w> </span>-&gt; <span class=kp>&amp;</span><span class=nc>mut</span><span class=w> </span><span class=bp>Self</span>::<span class=n>Target</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=bp>self</span><span class=p>.</span><span class=kt>str</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>这是一个可以解引用为<code>String</code>的类型， 也就是说<code>Deref&lt;MyString>->String</code></p><p>那么看一下我们可以怎么使用这个特性</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=w> </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w>  </span><span class=n>my_string</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>MyString</span><span class=p>{</span><span class=kt>str</span>: <span class=s>&#34;abc&#34;</span><span class=p>.</span><span class=n>to_string</span><span class=p>()};</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=c1>//无法通过编译， 因为不能Move &amp;类型,
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w> </span><span class=kd>let</span><span class=w> </span><span class=n>string</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>*</span><span class=n>my_string</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=kd>let</span><span class=w> </span><span class=n>string</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>*</span><span class=p>(</span><span class=n>my_string</span><span class=p>.</span><span class=n>deref</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c1>//通过强制接引用(deref coercion)实现，无需显示写出，也很难写，因为这里面不仅涉及到解引用，还涉及到借引用， 反正是神奇的dot operator的黑魔法
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>  </span><span class=n>_</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>my_string</span><span class=p>.</span><span class=n>len</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c1>//必须实现DerefMut才可以
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w> </span><span class=o>*</span><span class=n>my_string</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=s>&#34;def&#34;</span><span class=p>.</span><span class=n>to_string</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=o>*</span><span class=p>(</span><span class=n>my_string</span><span class=p>.</span><span class=n>deref_mut</span><span class=p>())</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=s>&#34;def&#34;</span><span class=p>.</span><span class=n>to_string</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c1>//跟下面的是一个意思
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>let</span><span class=w> </span><span class=n>mutstr</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=s>&#34;123&#34;</span><span class=p>.</span><span class=n>to_string</span><span class=p>();</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=o>*</span><span class=n>mutstr</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=s>&#34;def&#34;</span><span class=p>.</span><span class=n>to_string</span><span class=p>();</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>从上面的例子可以看出，<code>Deref</code>只是参与了*操作， 两者并不等价， *v操作可能等于<code>*(v.deref())</code>也可能等于<code>v.deref().copy()</code>, 具体怎么<code>desugar</code>还要看使用情况。我们需要在直觉方面保持一致</p><p>需要指出的是<code>Box&lt;T></code>是一个比较特别的类型， 它可以通过<code>*Box&lt;T></code>将T给<code>Move</code>出来</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>a</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=nb>Box</span>::<span class=n>new</span><span class=p>(</span><span class=s>&#34;abc&#34;</span><span class=p>.</span><span class=n>to_string</span><span class=p>());</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c1>//可以编译通过， 应该是编译器特性
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>let</span><span class=w> </span><span class=n>b</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>*</span><span class=n>a</span><span class=p>;</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p><a href=https://github.com/rust-lang/rfcs/issues/997>详细情况可以参考这个RFC</a></p><h4 id=asref和asmut><code>AsRef</code>和<code>AsMut</code></h4><p>这两个trait允许从实现了<code>T:AsRef&lt;U></code>的类型T中获取&U, 也是一种满足灵活性的设计， 比如使用<code>AsRef&lt;U></code>作为函数参数， 就允许传入更多的类型
+需要说明的是， 泛型并不会做强制类型转换， 比如</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>impl</span><span class=w> </span><span class=nb>AsRef</span><span class=o>&lt;</span><span class=p>[</span><span class=kt>u8</span><span class=p>]</span><span class=o>&gt;</span><span class=w> </span><span class=k>for</span><span class=w> </span><span class=kt>str</span><span class=w> </span><span class=p>{}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>str类型实现了AsRef, 但是通常情况下， 我们是使用&str来进行编码， 这种情况编译器将在类型检查的时候无法通过， 为了解决这个问题， 标准库包含了一个通用实现</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>impl</span><span class=o>&lt;&#39;</span><span class=na>a</span><span class=p>,</span><span class=w> </span><span class=n>T</span><span class=p>,</span><span class=w> </span><span class=n>U</span><span class=o>&gt;</span><span class=w> </span><span class=nb>AsRef</span><span class=o>&lt;</span><span class=n>U</span><span class=o>&gt;</span><span class=w> </span><span class=k>for</span><span class=w> </span><span class=o>&amp;&#39;</span><span class=na>a</span><span class=w> </span><span class=n>T</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=k>where</span><span class=w> </span><span class=n>T</span>: <span class=nb>AsRef</span><span class=o>&lt;</span><span class=n>U</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>T</span>: <span class=o>?</span><span class=nb>Sized</span><span class=p>,</span><span class=w> </span><span class=n>U</span>: <span class=o>?</span><span class=nb>Sized</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=k>fn</span> <span class=nf>as_ref</span><span class=p>(</span><span class=o>&amp;</span><span class=bp>self</span><span class=p>)</span><span class=w> </span>-&gt; <span class=kp>&amp;</span><span class=nc>U</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=p>(</span><span class=o>*</span><span class=bp>self</span><span class=p>).</span><span class=n>as_ref</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>这使得， 任何<code>T: AsRef&lt;U></code>都同时有 <code>&T:AsRef&lt;U></code>, 也就是通过T，&T都可以得到&U类型</p><h4 id=borrow和borrowmut><code>Borrow</code>和<code>BorrowMut</code></h4><p><code>Borrow</code>与<code>AsRef</code>类似，也是获取<code>T: AsBorrow&lt;U></code>,也是通过T获取&U的方式.所不同的是， AsBorrow通常约定T与U之间有某种联系,比如<code>HashMap&lt;K,V></code></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>std</span>::<span class=n>borrow</span>::<span class=n>Borrow</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>use</span><span class=w> </span><span class=n>std</span>:#<span class=err>️⃣</span>:<span class=nc>Hash</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>pub</span><span class=w> </span><span class=k>struct</span> <span class=nc>HashMap</span><span class=o>&lt;</span><span class=n>K</span><span class=p>,</span><span class=w> </span><span class=n>V</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// fields omitted
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>impl</span><span class=o>&lt;</span><span class=n>K</span><span class=p>,</span><span class=w> </span><span class=n>V</span><span class=o>&gt;</span><span class=w> </span><span class=n>HashMap</span><span class=o>&lt;</span><span class=n>K</span><span class=p>,</span><span class=w> </span><span class=n>V</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=k>fn</span> <span class=nf>insert</span><span class=p>(</span><span class=o>&amp;</span><span class=bp>self</span><span class=p>,</span><span class=w> </span><span class=n>key</span>: <span class=nc>K</span><span class=p>,</span><span class=w> </span><span class=n>value</span>: <span class=nc>V</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nb>Option</span><span class=o>&lt;</span><span class=n>V</span><span class=o>&gt;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>where</span><span class=w> </span><span class=n>K</span>: <span class=nc>Hash</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=nb>Eq</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// ...
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>pub</span><span class=w> </span><span class=k>fn</span> <span class=nf>get</span><span class=o>&lt;</span><span class=n>Q</span><span class=o>&gt;</span><span class=p>(</span><span class=o>&amp;</span><span class=bp>self</span><span class=p>,</span><span class=w> </span><span class=n>k</span>: <span class=kp>&amp;</span><span class=nc>Q</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nb>Option</span><span class=o>&lt;&amp;</span><span class=n>V</span><span class=o>&gt;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>where</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>K</span>: <span class=nc>Borrow</span><span class=o>&lt;</span><span class=n>Q</span><span class=o>&gt;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>Q</span>: <span class=nc>Hash</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=nb>Eq</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=o>?</span><span class=nb>Sized</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=c1>// ...
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p><code>HashMap&lt;K, V></code>中存储的是K,V类型， 但是它允许使用Q满足<code>K: Borrow&lt;Q></code>来查询K对应的值， 这必然需要提供一下约束来保证实现， 因为HashMap与hash, eq,ord等运算符有关系， 比如要保证hash(K1)==hash(K2)的时候hash(Q1)==hash(Q2).
+当你能满足K与Q的Eq,Ord, Hash都一致的时候就实现<code>AsBorrow</code>,否则就实现<code>AsRef</code> .另外Borrow也有一些通用实现，保证了K, &K, &mut K 作为K的时候， &K作为Q，也就是实现了<code>K: AsBorrow&lt;K></code>, <code>&K: AsBorrow&lt;K></code>, <code>&mut K: AsBorrow&lt;K></code>，当然还有更多的智能指针比如<code>Box&lt;K>: AsBorrow&lt;K></code></p><h4 id=from和into><code>From</code>和<code>Into</code></h4><p>这是一组一样用途的Trait，实现了<code>From</code>就会自动实现<code>Into</code> . <code>T: From&lt;U></code>表示可以从U转换成T类型。<code>From</code>的一个典型用途就是<code>?</code>操作符， 它可以将错误进行转换， 符合函数需要的错误类型，从而简化代码</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=c1>//所有实现了std::err::Error的类型都可以转换成Box&lt;dyn Error&gt;
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>impl</span><span class=o>&lt;&#39;</span><span class=na>a</span><span class=p>,</span><span class=w> </span><span class=n>E</span>: <span class=nc>Error</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=nb>Send</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=nb>Sync</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=o>&#39;</span><span class=na>a</span><span class=o>&gt;</span><span class=w> </span><span class=nb>From</span><span class=o>&lt;</span><span class=n>E</span><span class=o>&gt;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=k>for</span><span class=w> </span><span class=nb>Box</span><span class=o>&lt;</span><span class=k>dyn</span><span class=w> </span><span class=n>Error</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=nb>Send</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=nb>Sync</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=o>&#39;</span><span class=na>a</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=k>fn</span> <span class=nf>from</span><span class=p>(</span><span class=n>err</span>: <span class=nc>E</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nb>Box</span><span class=o>&lt;</span><span class=k>dyn</span><span class=w> </span><span class=n>Error</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=nb>Send</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=nb>Sync</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=o>&#39;</span><span class=na>a</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=nb>Box</span>::<span class=n>new</span><span class=p>(</span><span class=n>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>type</span> <span class=nc>GenericError</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=nb>Box</span><span class=o>&lt;</span><span class=k>dyn</span><span class=w> </span><span class=n>std</span>::<span class=n>error</span>::<span class=n>Error</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=nb>Send</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=nb>Sync</span><span class=w> </span><span class=o>+</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=o>&#39;</span><span class=nb>static</span><span class=o>&gt;</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>type</span> <span class=nc>GenericResult</span><span class=o>&lt;</span><span class=n>T</span><span class=o>&gt;</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=nb>Result</span><span class=o>&lt;</span><span class=n>T</span><span class=p>,</span><span class=w> </span><span class=n>GenericError</span><span class=o>&gt;</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>fn</span> <span class=nf>parse_i32_bytes</span><span class=p>(</span><span class=n>b</span>: <span class=kp>&amp;</span><span class=p>[</span><span class=kt>u8</span><span class=p>])</span><span class=w> </span>-&gt; <span class=nc>GenericResult</span><span class=o>&lt;</span><span class=kt>i32</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=nb>Ok</span><span class=p>(</span><span class=n>std</span>::<span class=kt>str</span>::<span class=n>from_utf8</span><span class=p>(</span><span class=n>b</span><span class=p>)</span><span class=o>?</span><span class=p>.</span><span class=n>parse</span>::<span class=o>&lt;</span><span class=kt>i32</span><span class=o>&gt;</span><span class=p>()</span><span class=o>?</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=toowned><code>ToOwned</code></h4><p><code>ToOwned</code>的定义如下</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>trait</span><span class=w> </span><span class=nb>ToOwned</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=k>type</span> <span class=nc>Owned</span>: <span class=nc>Borrow</span><span class=o>&lt;</span><span class=bp>Self</span><span class=o>&gt;</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=k>fn</span> <span class=nf>to_owned</span><span class=p>(</span><span class=o>&amp;</span><span class=bp>self</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>Self</span>::<span class=n>Owned</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>它允许从&T中生成一个<code>U: Borrow&lt;T></code>, 这使得它的使用范围比<code>Clone</code>要大， 你可以从多种可能的类型中选择一种， <code>Clone</code>只能返回<code>T</code>类型，比如<code>[T]</code>可以实现成<code>ToOwned&lt;Owned=Vec&lt;T>></code>, 因为<code>Vec&lt;T>:Borrow&lt;[T]></code>， 相反[T]因为是<code>Unsized Type</code>, 是不允许实现<code>Clone</code>的</p><h4 id=cow><code>Cow</code></h4><p><code>Cow</code>是<code>Copy On Write</code>的意思，它的定义是一个<code>Enum</code>类型</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>enum</span> <span class=nc>Cow</span><span class=o>&lt;&#39;</span><span class=na>a</span><span class=p>,</span><span class=w> </span><span class=n>B</span>: <span class=o>?</span><span class=nb>Sized</span><span class=o>&gt;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=k>where</span><span class=w> </span><span class=n>B</span>: <span class=nb>ToOwned</span>
+</span></span><span class=line><span class=cl><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>Borrowed</span><span class=p>(</span><span class=o>&amp;&#39;</span><span class=na>a</span><span class=w> </span><span class=n>B</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>Owned</span><span class=p>(</span><span class=o>&lt;</span><span class=n>B</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=nb>ToOwned</span><span class=o>&gt;</span>::<span class=n>Owned</span><span class=p>),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>可以看出来，它利用了<code>Borrow</code>和<code>ToOwned</code>两种Trait来实现， 一个Cow即可以是一个&B， 也是可以是<code>T: Borrow&lt;B></code>, 其中T是值， &B是引用， 当必要的时候这两个之前可以互相转换</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>std</span>::<span class=n>path</span>::<span class=n>PathBuf</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>use</span><span class=w> </span><span class=n>std</span>::<span class=n>borrow</span>::<span class=n>Cow</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>fn</span> <span class=nf>describe</span><span class=p>(</span><span class=n>error</span>: <span class=kp>&amp;</span><span class=nc>Error</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>Cow</span><span class=o>&lt;&#39;</span><span class=nb>static</span><span class=p>,</span><span class=w> </span><span class=kt>str</span><span class=o>&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=k>match</span><span class=w> </span><span class=o>*</span><span class=n>error</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>Error</span>::<span class=n>OutOfMemory</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=s>&#34;out of memory&#34;</span><span class=p>.</span><span class=n>into</span><span class=p>(),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>Error</span>::<span class=n>StackOverflow</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=s>&#34;stack overflow&#34;</span><span class=p>.</span><span class=n>into</span><span class=p>(),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>Error</span>::<span class=n>MachineOnFire</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=s>&#34;machine on fire&#34;</span><span class=p>.</span><span class=n>into</span><span class=p>(),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>Error</span>::<span class=n>Unfathomable</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=s>&#34;machine bewildered&#34;</span><span class=p>.</span><span class=n>into</span><span class=p>(),</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>Error</span>::<span class=n>FileNotFound</span><span class=p>(</span><span class=k>ref</span><span class=w> </span><span class=n>path</span><span class=p>)</span><span class=w> </span><span class=o>=&gt;</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=fm>format!</span><span class=p>(</span><span class=s>&#34;file not found: {}&#34;</span><span class=p>,</span><span class=w> </span><span class=n>path</span><span class=p>.</span><span class=n>display</span><span class=p>()).</span><span class=n>into</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div></div></div></article><article class="post bg-white"><header class=post-header><h1 class=post-title><a class=post-link href=/post/rust-iterators/>Rust Iterators</a></h1><div class=post-meta><time datetime=2022-10-20 class=post-time>2022-10-20</time></div></header><div class=post-content><div class=post-summary><p>本文是对<a href=https://www.oreilly.com/library/view/programming-rust-2nd/9781492052586/>Programming Rust</a> 第15章的总结，部分代码与图片来自此书</p><h3 id=一个简单的例子>一个简单的例子</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
@@ -341,109 +649,7 @@
 </span></span></span><span class=line><span class=cl><span class=w></span><span class=c1>//Config本身是immutable的， 但是可以通过内部可变性，改变path的值
 </span></span></span><span class=line><span class=cl><span class=c1></span><span class=w> </span><span class=kd>let</span><span class=w> </span><span class=n>_</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>ins</span><span class=p>.</span><span class=n>conf</span><span class=p>.</span><span class=n>path</span><span class=p>.</span><span class=n>borrow_mut</span><span class=p>().</span><span class=n>replace</span><span class=p>(</span><span class=s>&#34;abc&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;xyz&#34;</span><span class=p>)</span><span class=w> </span><span class=p>;</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w> </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;{}&#34;</span><span class=p>,</span><span class=w> </span><span class=n>ins2</span><span class=p>.</span><span class=n>conf</span><span class=p>.</span><span class=n>path</span><span class=p>.</span><span class=n>borrow</span><span class=p>());</span><span class=w>
-</span></span></span></code></pre></td></tr></table></div></div><p>内部可变性的问题在于， 它打破了rust编译期的借用规则， 但是在运行期，如果它同时存在一个可变引用与不可变引用，程序会<code>panic</code>, 也就是说在运行期它依然要遵循借用规则</p></div></div></article><article class="post bg-white"><header class=post-header><h1 class=post-title><a class=post-link href=/post/rust-references-more/>Rust Shared And Mutable References</a></h1><div class=post-meta><time datetime=2022-10-15 class=post-time>2022-10-15</time></div></header><div class=post-content><div class=post-summary><p>本文是对<a href=https://www.oreilly.com/library/view/programming-rust-2nd/9781492052586/>Programming Rust</a> 第5章的总结，部分代码与图片来自此书</p><h1 id=共享引用与可变引用>共享引用与可变引用</h1><p>虽然可以同时存在多个共享引用，但是当共享引用存在的时候，不但不能够存在可变引用，甚至你也不能修改或者<code>move</code> 拥有者本身，比如</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
-</span><span class=lnt>2
-</span><span class=lnt>3
-</span><span class=lnt>4
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=kd>let</span><span class=w> </span><span class=n>v</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=fm>vec!</span><span class=p>[</span><span class=mi>4</span><span class=p>,</span><span class=w> </span><span class=mi>8</span><span class=p>,</span><span class=w> </span><span class=mi>19</span><span class=p>,</span><span class=w> </span><span class=mi>27</span><span class=p>,</span><span class=w> </span><span class=mi>34</span><span class=p>,</span><span class=w> </span><span class=mi>10</span><span class=p>];</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>let</span><span class=w> </span><span class=n>r</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>&amp;</span><span class=n>v</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>let</span><span class=w> </span><span class=n>aside</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>v</span><span class=p>;</span><span class=w> </span><span class=c1>// move vector to aside
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=n>r</span><span class=p>[</span><span class=mi>0</span><span class=p>];</span><span class=w> </span><span class=c1>// bad: uses `v`, which is now uninitialized
-</span></span></span></code></pre></td></tr></table></div></div><p>上面的<code>v</code> 在被引用的时候<code>move</code>给了<code>r</code>， 这种操作是编译器禁止的</p><p>一个场景是在编程当中经常出现的，比如你需要复制字符串自身,使用rust，你可能会这样实现</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
-</span><span class=lnt>2
-</span><span class=lnt>3
-</span><span class=lnt>4
-</span><span class=lnt>5
-</span><span class=lnt>6
-</span><span class=lnt>7
-</span><span class=lnt>8
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>fn</span> <span class=nf>extend</span><span class=p>(</span><span class=n>vec</span>: <span class=kp>&amp;</span><span class=nc>mut</span><span class=w> </span><span class=nb>Vec</span><span class=o>&lt;</span><span class=kt>f64</span><span class=o>&gt;</span><span class=p>,</span><span class=w> </span><span class=n>slice</span>: <span class=kp>&amp;</span><span class=p>[</span><span class=kt>f64</span><span class=p>])</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w> </span><span class=k>for</span><span class=w> </span><span class=n>elt</span><span class=w> </span><span class=k>in</span><span class=w> </span><span class=n>slice</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>vec</span><span class=p>.</span><span class=n>push</span><span class=p>(</span><span class=o>*</span><span class=n>elt</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w> </span><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>let</span><span class=w> </span><span class=n>wave</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=fm>vec!</span><span class=p>[</span><span class=mf>0.0</span><span class=p>,</span><span class=w> </span><span class=mf>1.0</span><span class=p>];</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=n>extend</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=n>wave</span><span class=p>,</span><span class=w> </span><span class=o>&amp;</span><span class=n>wave</span><span class=p>);</span><span class=w>
-</span></span></span></code></pre></td></tr></table></div></div><p>但是这种操作是被编译器禁止的，由于修改<code>wave</code>的时候很可能改变它的内存地址，比如扩充大小，这个时候<code>slice</code>指向 了已经被摧毁的内存地址，程序就会出现访问无效内存的问题，以下是示意图</p><p><img src=/sharedmut.png alt></p><p>这些编译错误使我们重新看一下rust的引用规则</p><ul><li><p>共享访问</p><p>被共享引用的值是只读的，在共享引用的周期内， 这个值不能被改变，即使是通过变量本身也不行</p></li><li><p>排他访问</p></li></ul><p>​ 可变引用是排他的， 在可变引用周期内， 这个值甚至不能被访问，唯一的例外就是可以<code>reborrow</code>这个可变引用</p><p>一下是一些体现这些规则的例子</p><h3 id=共享引用期间不能修改>共享引用期间不能修改</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
-</span><span class=lnt>2
-</span><span class=lnt>3
-</span><span class=lnt>4
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>y</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>10</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>r</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>&amp;</span><span class=n>y</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>y</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>11</span><span class=p>;</span><span class=w>  </span><span class=c1>//can not change y
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;{}&#34;</span><span class=p>,</span><span class=w> </span><span class=n>r</span><span class=p>);</span><span class=w>
-</span></span></span></code></pre></td></tr></table></div></div><h3 id=可变引用期间不能问>可变引用期间不能问</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
-</span><span class=lnt>2
-</span><span class=lnt>3
-</span><span class=lnt>4
-</span><span class=lnt>5
-</span><span class=lnt>6
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=w>   </span><span class=c1>//can not use of mut borrowed y, even it is copy type
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>      </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>y</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=mi>10</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=kd>let</span><span class=w> </span><span class=n>r</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=n>y</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>      
-</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=kd>let</span><span class=w> </span><span class=n>z</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>y</span><span class=p>;</span><span class=w>  </span><span class=c1>//can not access y
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>      </span><span class=fm>print!</span><span class=p>(</span><span class=s>&#34;{}, {}&#34;</span><span class=p>,</span><span class=w> </span><span class=n>r</span><span class=p>,</span><span class=w> </span><span class=n>z</span><span class=p>);</span><span class=w>
-</span></span></span></code></pre></td></tr></table></div></div><h3 id=从共享引用reborrow>从共享引用<code>reborrow</code></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
-</span><span class=lnt>2
-</span><span class=lnt>3
-</span><span class=lnt>4
-</span><span class=lnt>5
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=w> </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>w</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>(</span><span class=mi>107</span><span class=p>,</span><span class=w> </span><span class=mi>109</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>r</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>&amp;</span><span class=n>w</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>r0</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>&amp;</span><span class=n>w</span><span class=p>.</span><span class=mi>0</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=fm>println!</span><span class=p>(</span><span class=s>&#34;{:?}, {}&#34;</span><span class=p>,</span><span class=w> </span><span class=n>r</span><span class=p>,</span><span class=w> </span><span class=n>r0</span><span class=p>);</span><span class=w>
-</span></span></span></code></pre></td></tr></table></div></div><h3 id=从可变引用reborrow>从可变引用<code>reborrow</code></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
-</span><span class=lnt>2
-</span><span class=lnt>3
-</span><span class=lnt>4
-</span><span class=lnt>5
-</span><span class=lnt>6
-</span><span class=lnt>7
-</span><span class=lnt>8
-</span><span class=lnt>9
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>w</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>(</span><span class=mi>100</span><span class=p>,</span><span class=w> </span><span class=mi>101</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>m</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=n>w</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>m0</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=n>m</span><span class=p>.</span><span class=mi>0</span><span class=p>;</span><span class=w> </span><span class=c1>//reborrow mutable from m
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>    </span><span class=c1>// let m0 = &amp;mut w.0; //not possible, can only reborrow from m
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>    </span><span class=kd>let</span><span class=w> </span><span class=n>r1</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>&amp;</span><span class=n>m</span><span class=p>.</span><span class=mi>1</span><span class=p>;</span><span class=w>  </span><span class=c1>//reborrow shared from m
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// let v = w.0; //can not accessed, because of mut borrowed by m
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=w>    </span><span class=fm>print!</span><span class=p>(</span><span class=s>&#34;{:?}, {}&#34;</span><span class=p>,</span><span class=n>r1</span><span class=p>,</span><span class=w> </span><span class=n>m0</span><span class=p>);</span><span class=w>
-</span></span></span></code></pre></td></tr></table></div></div><p>这些限制可能看起来很奇怪，也会限制灵活性。 但是能排除一些安全隐患， 最典型的就是同时操作自身的例子，比如操作一个文件，我们很可能会复制自身</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
-</span><span class=lnt> 2
-</span><span class=lnt> 3
-</span><span class=lnt> 4
-</span><span class=lnt> 5
-</span><span class=lnt> 6
-</span><span class=lnt> 7
-</span><span class=lnt> 8
-</span><span class=lnt> 9
-</span><span class=lnt>10
-</span><span class=lnt>11
-</span><span class=lnt>12
-</span><span class=lnt>13
-</span><span class=lnt>14
-</span><span class=lnt>15
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-rust data-lang=rust><span class=line><span class=cl><span class=k>struct</span> <span class=nc>File</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>descriptor</span>: <span class=kt>i32</span>
-</span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>fn</span> <span class=nf>new_file</span><span class=p>(</span><span class=n>d</span>: <span class=kt>i32</span><span class=p>)</span><span class=w> </span>-&gt; <span class=nc>File</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>File</span><span class=w> </span><span class=p>{</span><span class=w> </span><span class=n>descriptor</span>: <span class=nc>d</span><span class=w> </span><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>fn</span> <span class=nf>clone_from</span><span class=p>(</span><span class=n>this</span>: <span class=kp>&amp;</span><span class=nc>mut</span><span class=w> </span><span class=n>File</span><span class=p>,</span><span class=w> </span><span class=n>rhs</span>: <span class=kp>&amp;</span><span class=nc>File</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>close</span><span class=p>(</span><span class=n>this</span><span class=p>.</span><span class=n>descriptor</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w> </span><span class=n>this</span><span class=p>.</span><span class=n>descriptor</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>dup</span><span class=p>(</span><span class=n>rhs</span><span class=p>.</span><span class=n>descriptor</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>let</span><span class=w> </span><span class=k>mut</span><span class=w> </span><span class=n>f</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>new_file</span><span class=p>(</span><span class=n>open</span><span class=p>(</span><span class=s>&#34;foo.txt&#34;</span><span class=p>,</span><span class=w> </span><span class=o>..</span><span class=p>.));</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=o>..</span><span class=p>.</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=n>clone_from</span><span class=p>(</span><span class=o>&amp;</span><span class=k>mut</span><span class=w> </span><span class=n>f</span><span class=p>,</span><span class=w> </span><span class=o>&amp;</span><span class=n>f</span><span class=p>);</span><span class=w>
-</span></span></span></code></pre></td></tr></table></div></div><p>如果以上代码能够执行，那么显然跟我们预期不太一样， 一个我们希望复制的文件已经被关闭了</p><p>这些现在也会在并发编程的时候带来一些好处， 因为并发中的竞争就是因为多个线程对于同个变量的修改导致的。但是rust中并不允许同时存在多个可变引用。</p><h1 id=对象海>对象海</h1><p>垃圾回收机制的引入通常导致了对象海的产生，开发者会在代码中将各个对象互相引用， 这样做可能会提高一点开发效率，但是由于缺乏良好的设计，随着代码量的增加，系统很快就会变成一团乱麻，难以维护， rust严格的所有权机制会使开发者提前思考系统设计，写出更好，更加可维护的程序</p></div></div></article></section><nav class=pagination><ul><li class=active><a href=/>1</a></li><li><a href=/page/2/>2</a></li><li><a href=/page/3/>3</a></li></ul></nav></div></div></main><footer id=footer class=footer><div class=icon-links><a href=mailto:zhouzhenyu1313@163.com rel="me noopener" class=iconfont title=email><svg class="icon" viewBox="0 0 1451 1024" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="36" height="36"><path d="M664.781909 681.472759.0 97.881301C0 3.997201 71.046997.0 71.046997.0H474.477909 961.649408h399.992405s71.046998 3.997201 71.046998 97.881301L771.345323 681.472759S764.482731 685.154773 753.594283 688.65053V688.664858C741.602731 693.493018 729.424896 695.068979 718.077952 694.839748 706.731093 695.068979 694.553173 693.493018 682.561621 688.664858V688.65053C671.644501 685.140446 664.781909 681.472759 664.781909 681.472759zm53.281707 130.131124C693.779541 811.016482 658.879232 802.205449 619.10784 767.734955 542.989056 701.759633.0 212.052267.0 212.052267V942.809523S0 1024 83.726336 1024H682.532949 753.579947h595.368192C1432.688811 1024 1432.688811 942.809523 1432.688811 942.809523V212.052267S893.138176 701.759633 817.019477 767.734955c-39.771477 34.470494-74.671786 43.295855-98.955861 43.868928z"/></svg></a><a href=https://github.com/jaredzhou rel="me noopener" class=iconfont title=github target=_blank><svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="36" height="36"><path d="M512 12.672c-282.88.0-512 229.248-512 512 0 226.261333 146.688 418.133333 350.08 485.76 25.6 4.821333 34.986667-11.008 34.986667-24.618667.0-12.16-.426667-44.373333-.64-87.04C242.005334 929.664 211.968 830.08 211.968 830.08 188.672 770.986667 155.008 755.2 155.008 755.2c-46.378667-31.744 3.584-31.104 3.584-31.104 51.413333 3.584 78.421333 52.736 78.421333 52.736 45.653333 78.293333 119.850667 55.68 149.12 42.581333 4.608-33.109333 17.792-55.68 32.426667-68.48-113.706667-12.8-233.216-56.832-233.216-253.013333.0-55.893333 19.84-101.546667 52.693333-137.386667-5.76-12.928-23.04-64.981333 4.48-135.509333.0.0 42.88-13.738667 140.8 52.48 40.96-11.392 84.48-17.024 128-17.28 43.52.256 87.04 5.888 128 17.28 97.28-66.218667 140.16-52.48 140.16-52.48 27.52 70.528 10.24 122.581333 5.12 135.509333 32.64 35.84 52.48 81.493333 52.48 137.386667.0 196.693333-119.68 240-233.6 252.586667 17.92 15.36 34.56 46.762667 34.56 94.72.0 68.522667-.64 123.562667-.64 140.202666.0 13.44 8.96 29.44 35.2 24.32C877.44 942.592 1024 750.592 1024 524.672c0-282.752-229.248-512-512-512"/></svg></a><a href=https://jaredzhou.github.io/index.xml rel="noopener alternate" type=application/rss+xml class=iconfont title=rss target=_blank><svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30" height="30"><path d="M819.157333 1024C819.157333 574.592 449.408 204.8.0 204.8V0c561.706667.0 1024 462.293333 1024 1024H819.157333zM140.416 743.04a140.8 140.8.0 01140.501333 140.586667A140.928 140.928.0 01140.074667 1024C62.72 1024 0 961.109333.0 883.626667S62.933333 743.082667 140.416 743.04zM678.784 1024h-199.04c0-263.210667-216.533333-479.786667-479.744-479.786667v-199.04c372.352.0 678.784 306.517333 678.784 678.826667z"/></svg></a></div><div class=copyright><span class=power-by>Powered by <a class=hexo-link href=https://gohugo.io>Hugo</a></span>
+</span></span></span></code></pre></td></tr></table></div></div><p>内部可变性的问题在于， 它打破了rust编译期的借用规则， 但是在运行期，如果它同时存在一个可变引用与不可变引用，程序会<code>panic</code>, 也就是说在运行期它依然要遵循借用规则</p></div></div></article></section><nav class=pagination><ul><li class=active><a href=/>1</a></li><li><a href=/page/2/>2</a></li><li><a href=/page/3/>3</a></li></ul></nav></div></div></main><footer id=footer class=footer><div class=icon-links><a href=mailto:zhouzhenyu1313@163.com rel="me noopener" class=iconfont title=email><svg class="icon" viewBox="0 0 1451 1024" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="36" height="36"><path d="M664.781909 681.472759.0 97.881301C0 3.997201 71.046997.0 71.046997.0H474.477909 961.649408h399.992405s71.046998 3.997201 71.046998 97.881301L771.345323 681.472759S764.482731 685.154773 753.594283 688.65053V688.664858C741.602731 693.493018 729.424896 695.068979 718.077952 694.839748 706.731093 695.068979 694.553173 693.493018 682.561621 688.664858V688.65053C671.644501 685.140446 664.781909 681.472759 664.781909 681.472759zm53.281707 130.131124C693.779541 811.016482 658.879232 802.205449 619.10784 767.734955 542.989056 701.759633.0 212.052267.0 212.052267V942.809523S0 1024 83.726336 1024H682.532949 753.579947h595.368192C1432.688811 1024 1432.688811 942.809523 1432.688811 942.809523V212.052267S893.138176 701.759633 817.019477 767.734955c-39.771477 34.470494-74.671786 43.295855-98.955861 43.868928z"/></svg></a><a href=https://github.com/jaredzhou rel="me noopener" class=iconfont title=github target=_blank><svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="36" height="36"><path d="M512 12.672c-282.88.0-512 229.248-512 512 0 226.261333 146.688 418.133333 350.08 485.76 25.6 4.821333 34.986667-11.008 34.986667-24.618667.0-12.16-.426667-44.373333-.64-87.04C242.005334 929.664 211.968 830.08 211.968 830.08 188.672 770.986667 155.008 755.2 155.008 755.2c-46.378667-31.744 3.584-31.104 3.584-31.104 51.413333 3.584 78.421333 52.736 78.421333 52.736 45.653333 78.293333 119.850667 55.68 149.12 42.581333 4.608-33.109333 17.792-55.68 32.426667-68.48-113.706667-12.8-233.216-56.832-233.216-253.013333.0-55.893333 19.84-101.546667 52.693333-137.386667-5.76-12.928-23.04-64.981333 4.48-135.509333.0.0 42.88-13.738667 140.8 52.48 40.96-11.392 84.48-17.024 128-17.28 43.52.256 87.04 5.888 128 17.28 97.28-66.218667 140.16-52.48 140.16-52.48 27.52 70.528 10.24 122.581333 5.12 135.509333 32.64 35.84 52.48 81.493333 52.48 137.386667.0 196.693333-119.68 240-233.6 252.586667 17.92 15.36 34.56 46.762667 34.56 94.72.0 68.522667-.64 123.562667-.64 140.202666.0 13.44 8.96 29.44 35.2 24.32C877.44 942.592 1024 750.592 1024 524.672c0-282.752-229.248-512-512-512"/></svg></a><a href=https://jaredzhou.github.io/index.xml rel="noopener alternate" type=application/rss+xml class=iconfont title=rss target=_blank><svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30" height="30"><path d="M819.157333 1024C819.157333 574.592 449.408 204.8.0 204.8V0c561.706667.0 1024 462.293333 1024 1024H819.157333zM140.416 743.04a140.8 140.8.0 01140.501333 140.586667A140.928 140.928.0 01140.074667 1024C62.72 1024 0 961.109333.0 883.626667S62.933333 743.082667 140.416 743.04zM678.784 1024h-199.04c0-263.210667-216.533333-479.786667-479.744-479.786667v-199.04c372.352.0 678.784 306.517333 678.784 678.826667z"/></svg></a></div><div class=copyright><span class=power-by>Powered by <a class=hexo-link href=https://gohugo.io>Hugo</a></span>
 <span class=division>|</span>
 <span class=theme-info>Theme - <a class=theme-link href=https://github.com/xianmin/hugo-theme-jane>Jane</a></span>
 <span class=copyright-year>&copy;
